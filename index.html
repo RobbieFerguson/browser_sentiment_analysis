@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+	<style>
+	body {
+	  font-family: "Helvetica Neue", helvetica, arial;
+	  padding: 15px;
+	  background-color: orange;
+	}
+	ul {
+	  list-style: none;
+	  margin: 0;
+	  padding: 0;
+	}
+	ul li {
+	  line-height: 1.4;
+	}
+	</style>
+  </head>
+  <body>
+   <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+		var socket = io();
+      var navigator = window.navigator;
+      navigator.getUserMedia = (
+        navigator.getUserMedia ||
+          navigator.webkitGetUserMedia ||
+          navigator.mozGetUserMedia ||
+          navigator.msGetUserMedia
+      );
+
+      var Context = window.AudioContext || window.webkitAudioContext;
+      var context = new Context();
+
+
+
+	    $( document ).ready(function() {
+			$('#talk').click(function(){
+   			console.log("record and break up into sections");
+            console.log("send audiofile");
+            socket.emit('talk', (new Date));
+				return false;
+			});
+			socket.on('message', function(msg){
+            console.log(msg);
+			});
+		});
+    </script>
+    <script src="recorder.js"></script>
+    <!--  -->
+   <button id="talk">Talk</button>
+   <!--  -->
+  </body>
+</html>
