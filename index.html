@@ -39,7 +39,9 @@
 
 	    $( document ).ready(function() {
 			$('#talk').click(function(){
+            //
    			console.log("record and break up into sections");
+            // 
             console.log("send audiofile");
             socket.emit('talk', (new Date));
 				return false;
