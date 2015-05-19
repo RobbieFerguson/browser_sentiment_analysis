@@ -69,7 +69,7 @@
                socket.emit('talk', e);
                console.log("emitting");
                rec.clear();
-               record()
+               record();
             })
 
          }
@@ -82,28 +82,7 @@
            //send in 5 second intervals
            record();
 
-/*           id = setInterval(function() {
-             rec.exportWAV(function(e){
-                // start recording
-                rec.record();
-                rec.stop();
-                rec.clear();
-                socket.emit('talk', e);});
-           }, 5000)
-
-           rec.stop();
-           rec.clear();
-           socket.emit('talk', e);});
-           */
-           /*
-            //
-            console.log("send audiofile");
-            socket.emit('talk', (new Date));
-				*/
-            return false;
-
 			});
-
          $('#stop').click(function(){
             //
             $("#talk").prop("disabled", false); //enable button for speaking
@@ -114,6 +93,7 @@
 
 			socket.on('message', function(msg){
             console.log(msg);
+            console.log("updating background");
 			});
 		});
     </script>
