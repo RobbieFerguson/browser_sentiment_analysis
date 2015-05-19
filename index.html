@@ -35,25 +35,64 @@
       var Context = window.AudioContext || window.webkitAudioContext;
       var context = new Context();
 
-
+      var mediaStream;
+      var rec;
 
 	    $( document ).ready(function() {
 			$('#talk').click(function(){
             //
+            $("#talk").prop("disabled", true); //disable button for speaking
+            $("#stop").prop("disabled", false); //enable button for stop speaking
    			console.log("record and break up into sections");
-            // 
+            // ask for permission and start recording
+           navigator.getUserMedia({audio: true}, function(localMediaStream){
+             mediaStream = localMediaStream;
+
+             // create a stream source to pass to Recorder.js
+             var mediaStreamSource = context.createMediaStreamSource(localMediaStream);
+
+             // create new instance of Recorder.js using the mediaStreamSource
+             rec = new Recorder(mediaStreamSource, {
+               // pass the path to recorderWorker.js file here
+               workerPath: '/bower_components/Recorderjs/recorderWorker.js'
+             });
+
+             // start recording
+             rec.record();
+           }, function(err){
+             console.log('Browser not supported');
+           });
+
+           //send in 5 second intervals
+           id = setInterval(function() {
+             rec.exportWAV(function(e){
+                rec.stop();
+                rec.clear();
+                socket.emit('talk', e);});
+           }, 5000)
+            //
             console.log("send audiofile");
             socket.emit('talk', (new Date));
 				return false;
 			});
+
+         $('#stop').click(function(){
+            //
+            $("#talk").prop("disabled", false); //enable button for speaking
+            $("#stop").prop("disabled", true); //disable button for stop speaking
+
+         });
+
 			socket.on('message', function(msg){
             console.log(msg);
 			});
 		});
     </script>
-    <script src="recorder.js"></script>
+    <script src="bower_components/Recorderjs/recorder.js"></script>
+    <script src="bower_components/Recorderjs/recorderWorker.js"></script>
     <!--  -->
    <button id="talk">Talk</button>
+   <button id="stop" disabled>Stop</button>
    <!--  -->
   </body>
 </html>
