@@ -22,11 +22,14 @@ io.on('connection', function(socket){
    socket.on('talk', function(msg){
 
       client.call('recognizespeech', {'file' : msg} ,function(err,resp,body) {
-         client.call('analyzesentiment', {'file' : body.content} ,function(err,resp,body) {
-            // socket.emit('message', hexValue()) //send data analysis
-            socket.emit('message', 1) //send data analysis
-         })
-      })
+         console.log("hi")
+         console.log(body)
+         console.log(err)
+         // client.call('analyzesentiment', {'file' : body.content} ,function(err,resp,body) {
+         //    // socket.emit('message', hexValue()) //send data analysis
+         //    socket.emit('message', 1) //send data analysis
+         // })
+      }, true)
    });
 });
 
