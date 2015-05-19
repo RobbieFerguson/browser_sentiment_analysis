@@ -39,47 +39,76 @@
       var rec;
 
 	    $( document ).ready(function() {
+
+          // ask for permission and start recording
+         navigator.getUserMedia({audio: true}, function(localMediaStream){
+           mediaStream = localMediaStream;
+
+           // create a stream source to pass to Recorder.js
+           var mediaStreamSource = context.createMediaStreamSource(localMediaStream);
+
+           // create new instance of Recorder.js using the mediaStreamSource
+           rec = new Recorder(mediaStreamSource, {
+             // pass the path to recorderWorker.js file here
+             workerPath: '/bower_components/Recorderjs/recorderWorker.js'
+           });
+
+         }, function(err){
+           console.log('Browser not supported');
+         });
+
+         function record(){
+            console.log("Start Recording")
+               rec.record();
+               setTimeout(stopRecording, 5000);
+         }
+         function stopRecording(){
+            console.log("Stop Recording")
+            rec.stop();
+            rec.exportWAV(function(e){
+               socket.emit('talk', e);
+               console.log("emitting");
+               rec.clear();
+               record()
+            })
+
+         }
+
 			$('#talk').click(function(){
             //
             $("#talk").prop("disabled", true); //disable button for speaking
             $("#stop").prop("disabled", false); //enable button for stop speaking
    			console.log("record and break up into sections");
-            // ask for permission and start recording
-           navigator.getUserMedia({audio: true}, function(localMediaStream){
-             mediaStream = localMediaStream;
-
-             // create a stream source to pass to Recorder.js
-             var mediaStreamSource = context.createMediaStreamSource(localMediaStream);
-
-             // create new instance of Recorder.js using the mediaStreamSource
-             rec = new Recorder(mediaStreamSource, {
-               // pass the path to recorderWorker.js file here
-               workerPath: '/bower_components/Recorderjs/recorderWorker.js'
-             });
-
-             // start recording
-             rec.record();
-           }, function(err){
-             console.log('Browser not supported');
-           });
-
            //send in 5 second intervals
-           id = setInterval(function() {
+           record();
+
+/*           id = setInterval(function() {
              rec.exportWAV(function(e){
+                // start recording
+                rec.record();
                 rec.stop();
                 rec.clear();
                 socket.emit('talk', e);});
            }, 5000)
+
+           rec.stop();
+           rec.clear();
+           socket.emit('talk', e);});
+           */
+           /*
             //
             console.log("send audiofile");
             socket.emit('talk', (new Date));
-				return false;
+				*/
+            return false;
+
 			});
 
          $('#stop').click(function(){
             //
             $("#talk").prop("disabled", false); //enable button for speaking
             $("#stop").prop("disabled", true); //disable button for stop speaking
+            rec.exportWAV(function(e){rec.stop();rec.clear();socket.emit('talk', e);});
 
          });
 
