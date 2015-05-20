@@ -12,6 +12,7 @@ client = new iod.IODClient('http://api.idolondemand.com', process.env.idolOnDema
 var port = process.env.PORT || 5000
 
 var hexValue;
+var status;
 
 app.use(express.static(__dirname + "/"))
 
@@ -21,9 +22,9 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket){
-   socket.on('talk', function(msg){
+   socket.on('sendAudio', function(msg){
       var path = './test.wav'
-      console.log(msg)
+      // console.log(msg)
       fs.open(path, 'w', function(err, fd) {
           if (err) {
               throw 'error opening file: ' + err;
@@ -33,30 +34,57 @@ io.on('connection', function(socket){
               if (err) throw 'error writing file: ' + err;
               fs.close(fd, function() {
                   console.log('file written');
+
+                  var data_1 = {
+                     apikey:  process.env.idolOnDemandApiKey,
+                     file: {'file':'test.wav','content_type':'multipart/form-data'}
+                  }
+
+                  needle.post('http://api.idolondemand.com/1/api/async/recognizespeech/v1', data_1, { multipart: true, 'Content-Length': data_1.length }, function(err, resp, body) {
+                     if (err) {
+                        console.log(err);
+                     } else {
+                        console.log("POST succesful");
+                        console.log('https://api.idolondemand.com/1/job/result/' + body.jobID + '?apikey='+ process.env.idolOnDemandApiKey)
+                        needle.get('https://api.idolondemand.com/1/job/result/' + body.jobID + '?apikey='+ process.env.idolOnDemandApiKey, function(error, response) {
+                           console.log("GET");
+
+                           if (!error && response.statusCode == 200) {
+                              console.log("GET succesful");
+                              var outputText = response.body.actions[0].result.document[0].content;
+                              console.log(outputText);
+
+                              if (outputText === '' ){
+                                 console.log("No text was picked up")
+                              }
+                              else {
+                                 var data_2 = {
+                                    apikey:  process.env.idolOnDemandApiKey,
+                                    text: outputText
+                                 }
+                                 needle.post('http://api.idolondemand.com/1/api/sync/analyzesentiment/v1', data_2, { multipart: true, 'Content-Length': data_2.length }, function(err, resp, body) {
+                                    if (err) {
+                                       console.log(err);
+                                    } else {
+                                       console.log(body);
+                                       // console.log(parseFloat(body.aggregate.score));
+                                    }
+                                 })
+                              }
+                           }
+                        });
+                     }
+                  });
               })
           });
       });
 
-      client.call('recognizespeech', {'file' : 'test.wav'} ,function(err,resp,body) {
-         // console.log("hi")
-         console.log(body.data.jobID)
-         console.log('http://api.idolondemand.com/1/job/result/'+body.data.jobID+'?apikey='+process.env.idolOnDemandApiKey)
-         // console.log(err)
-         needle.get('http://api.idolondemand.com/1/job/result/'+body.data.jobID+'?apikey='+process.env.idolOnDemandApiKey, function(error, response, body) {
-         console.log(body)
-         if (!error && response.statusCode == 200){
-             console.log(response.body);
-          }
-            else {
-               console.log(error)
-            }
-         });
 
-         // client.call('analyzesentiment', {'file' : body.content} ,function(err,resp,body) {
-         //    // socket.emit('message', hexValue()) //send data analysis
-         //    socket.emit('message', 1) //send data analysis
-         // })
-      }, true)
+      // client.call('analyzesentiment', {'file' : body.content} ,function(err,resp,body) {
+      //    // socket.emit('message', hexValue()) //send data analysis
+      //    socket.emit('message', 1) //send data analysis
+      // })
+
    });
 });
 

@@ -60,16 +60,14 @@
          function record(){
             console.log("Start Recording")
                rec.record();
-               setTimeout(stopRecording, 5000);
          }
          function stopRecording(){
             console.log("Stop Recording")
             rec.stop();
             rec.exportWAV(function(e){
-               socket.emit('talk', e);
+               socket.emit('sendAudio', e);
                console.log("emitting");
                rec.clear();
-               record();
             })
 
          }
@@ -78,7 +76,7 @@
             //
             $("#talk").prop("disabled", true); //disable button for speaking
             $("#stop").prop("disabled", false); //enable button for stop speaking
-   			console.log("record and break up into sections");
+   			console.log("recording...");
            //send in 5 second intervals
            record();
 
@@ -87,7 +85,8 @@
             //
             $("#talk").prop("disabled", false); //enable button for speaking
             $("#stop").prop("disabled", true); //disable button for stop speaking
-            rec.exportWAV(function(e){rec.stop();rec.clear();socket.emit('talk', e);});
+            console.log("stop recording...emit to server");
+            stopRecording();
 
          });
 
