@@ -40,7 +40,8 @@ io.on('connection', function(socket){
                      file: {'file':'test.wav','content_type':'multipart/form-data'}
                   }
 
-                  needle.post('http://api.idolondemand.com/1/api/async/recognizespeech/v1', data_1, { multipart: true, 'Content-Length': data_1.length }, function(err, resp, body) {
+                  setTimeout(function(){
+                     needle.post('http://api.idolondemand.com/1/api/async/recognizespeech/v1', data_1, { multipart: true, 'Content-Length': data_1.length }, function(err, resp, body) {
                      if (err) {
                         console.log(err);
                      } else {
@@ -68,6 +69,8 @@ io.on('connection', function(socket){
                                     } else {
                                        console.log(body);
                                        // console.log(parseFloat(body.aggregate.score));
+                                       //    // socket.emit('message', hexValue()) //send data analysis
+                                       //    socket.emit('message', 1) //send data analysis
                                     }
                                  })
                               }
@@ -75,16 +78,10 @@ io.on('connection', function(socket){
                         });
                      }
                   });
+               }, 10000);
               })
           });
       });
-
-
-      // client.call('analyzesentiment', {'file' : body.content} ,function(err,resp,body) {
-      //    // socket.emit('message', hexValue()) //send data analysis
-      //    socket.emit('message', 1) //send data analysis
-      // })
-
    });
 });
 
