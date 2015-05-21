@@ -36,11 +36,12 @@ $( document ).ready(function() {
       console.log("Start Recording")
       rec.record();
    }
-   function stopRecording(){
+   function stopRecording(geolocationInformation){
       console.log("Stop Recording")
       rec.stop();
       rec.exportWAV(function(e){
-         socket.emit('sendAudio', e);
+         // socket.emit('sendAudio', e);
+         socket.emit('sendAudio', {audio: e, geolocation: geolocationInformation});
          console.log("emitting");
          rec.clear();
       })
@@ -51,11 +52,12 @@ $( document ).ready(function() {
    //The callback function executed when the location is fetched successfully.
    function onGeoSuccess(location) {
       console.log(location);
-      socket.emit('sendLocation', location);
+      stopRecording(location);
    }
    //The callback function executed when the location could not be fetched.
    function onGeoError(error) {
       console.log(error);
+      stopRecording(error)
    }
 
    $('#talk').click(function(){
@@ -63,8 +65,6 @@ $( document ).ready(function() {
       $("#talk").prop("disabled", true); //disable button for speaking
       $("#stop").prop("disabled", false); //enable button for stop speaking
       console.log("recording...");
-      var html5Options = { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 };
-      geolocator.locate(onGeoSuccess, onGeoError, true, html5Options, 'map-canvas');
       record();
 
    });
@@ -73,7 +73,8 @@ $( document ).ready(function() {
       $("#talk").prop("disabled", false); //enable button for speaking
       $("#stop").prop("disabled", true); //disable button for stop speaking
       console.log("stop recording...emit to server");
-      stopRecording();
+      var html5Options = { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 };
+      geolocator.locate(onGeoSuccess, onGeoError, true, html5Options, 'map-canvas'); //stopRecording(param) is called in this function
 
    });
 

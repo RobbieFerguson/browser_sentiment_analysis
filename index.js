@@ -30,7 +30,7 @@ io.on('connection', function(socket){
               throw 'error opening file: ' + err;
           }
 
-          fs.write(fd, msg, 0, msg.length, null, function(err) {
+          fs.write(fd, msg.audio, 0, msg.audio.length, null, function(err) {
               if (err) throw 'error writing file: ' + err;
               fs.close(fd, function() {
                   console.log('file written');
