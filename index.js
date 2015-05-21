@@ -83,6 +83,11 @@ io.on('connection', function(socket){
           });
       });
    });
+   socket.on('sendLocation', function(msg){
+      console.log(msg);
+   });
+
+
 });
 
 http.listen(port, function(){

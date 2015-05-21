@@ -3,6 +3,7 @@
   <head>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+   <script type="text/javascript" src="geolocator.js"></script>
 	<style>
 	body {
 	  font-family: "Helvetica Neue", helvetica, arial;
@@ -59,7 +60,7 @@
 
          function record(){
             console.log("Start Recording")
-               rec.record();
+            rec.record();
          }
          function stopRecording(){
             console.log("Stop Recording")
@@ -72,13 +73,25 @@
 
          }
 
+         //geolocation
+         //The callback function executed when the location is fetched successfully.
+         function onGeoSuccess(location) {
+            console.log(location);
+            socket.emit('sendLocation', location);
+         }
+         //The callback function executed when the location could not be fetched.
+         function onGeoError(error) {
+            console.log(error);
+         }
+
 			$('#talk').click(function(){
             //
             $("#talk").prop("disabled", true); //disable button for speaking
             $("#stop").prop("disabled", false); //enable button for stop speaking
    			console.log("recording...");
-           //send in 5 second intervals
-           record();
+            var html5Options = { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 };
+            geolocator.locate(onGeoSuccess, onGeoError, true, html5Options, 'map-canvas');
+            record();
 
 			});
          $('#stop').click(function(){
@@ -95,6 +108,7 @@
             console.log("updating background");
 			});
 		});
+
     </script>
     <script src="bower_components/Recorderjs/recorder.js"></script>
     <script src="bower_components/Recorderjs/recorderWorker.js"></script>
