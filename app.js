@@ -35,7 +35,7 @@ function setupButtons() {
     $("#talk").prop("disabled", true); //disable button for speaking
     $("#stop").prop("disabled", false); //enable button for stop speaking
     console.log("recording...");
-    record();
+    rec.record();
 
   });
   $('#stop').click(function() {
@@ -52,10 +52,7 @@ function setupButtons() {
   });
 }
 
-function record() {
-  console.log("Start Recording")
-  rec.record();
-}
+
 
 function stopRecording() {
   console.log("Stop Recording")
