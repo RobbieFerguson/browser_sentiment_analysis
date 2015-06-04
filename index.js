@@ -14,6 +14,10 @@ var port = process.env.PORT || 5000
 var hexValue;
 var status;
 
+
+var needleoptions={
+  'open_timeout':0
+}
 app.use(express.static(__dirname + "/"))
 
 // on /
@@ -37,15 +41,19 @@ io.on('connection', function(socket){
 
                   var data_1 = {
                      apikey:  process.env.idolOnDemandApiKey,
-                     file: {'file':'test.wav','content_type':'multipart/form-data'}
+                     file: {'file':'test.wav', 'content_type':'multipart/form-data'}
                   }
 
                   setTimeout(function(){
-                     needle.post('http://api.idolondemand.com/1/api/async/recognizespeech/v1', data_1, { multipart: true, 'Content-Length': data_1.length }, function(err, resp, body) {
+                     needle.post('http://api.idolondemand.com/1/api/async/recognizespeech/v1', data_1, { open_timeout:0,
+                       multipart: true}, function(err, resp, body) {
                      if (err) {
                         console.log(err);
+                        console.log(body);
+
                      } else {
                         console.log("POST succesful");
+                        console.log(body)
                         console.log('https://api.idolondemand.com/1/job/result/' + body.jobID + '?apikey='+ process.env.idolOnDemandApiKey)
                         needle.get('https://api.idolondemand.com/1/job/result/' + body.jobID + '?apikey='+ process.env.idolOnDemandApiKey, function(error, response) {
                            console.log("GET");
