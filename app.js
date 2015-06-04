@@ -12,11 +12,11 @@ var context = new Context();
 
 var mediaStream;
 var rec;
-
+var geo={};
 
 function onGeoSuccess(location) {
   console.log("Geo Success");
-
+  geo=location;
   console.log(location);
   setupButtons()
   //  stopRecording(location);
@@ -57,14 +57,14 @@ function record() {
   rec.record();
 }
 
-function stopRecording(geolocationInformation) {
+function stopRecording() {
   console.log("Stop Recording")
   rec.stop();
   rec.exportWAV(function(e) {
     // socket.emit('sendAudio', e);
     socket.emit('sendAudio', {
       audio: e,
-      geolocation: geolocationInformation
+      geolocation: geo
     });
     console.log("emitting");
     rec.clear();
