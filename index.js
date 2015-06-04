@@ -15,16 +15,13 @@ Promise.promisifyAll(fs);
 client = new iod.IODClient('http://api.idolondemand.com', process.env.idolOnDemandApiKey)
 
 var port = process.env.PORT || 5000
-
 var hexValue;
 var status;
-
-
 var needleoptions = {
   'open_timeout': 0
 }
-app.use(express.static(__dirname + "/"))
 
+app.use(express.static(__dirname + "/"))
 // on /
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html')
@@ -75,10 +72,11 @@ processFile = function() {    
       var jobID=body.jobID;
       var asyncres= Promise.resolve(getResultAsync(jobID))
       asyncres.then(function(data){
-        console.log(data.result)
-
-        return data.result;
+        var text = data.actions[0].result.document[0]
+        return needle.getAsync();
       })
+
+
 /*
       return needle.get(
         'https://api.idolondemand.com/1/job/result/' + body
