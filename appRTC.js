@@ -13,6 +13,7 @@ var context = new Context();
 var mediaStream;
 var rec;
 var geo={};
+var recordRTC;
 
 function onGeoSuccess(location) {
   console.log("Geo Success");
@@ -78,29 +79,38 @@ $(document).ready(function() {
   // ask for permission and start recording
   navigator.getUserMedia({
     audio: true
-  }, function(localMediaStream) {
-    mediaStream = localMediaStream;
+  }, function(mediaStream) {
+     recordRTC = RecordRTC(mediaStream);
+     recordRTC.startRecording();
+   });
 
-    // create a stream source to pass to Recorder.js
-    var mediaStreamSource = context.createMediaStreamSource(
-      localMediaStream);
+  btnStopRecording.onclick = function() {
+   recordRTC.stopRecording(function(audioURL) {
+        audio.src = audioURL;
 
-    // create new instance of Recorder.js using the mediaStreamSource
-      console.log('creating recorder')
-    rec = new Recorder(mediaStreamSource, {
-      // pass the path to recorderWorker.js file here
-      workerPath: '/bower_components/Recorderjs/recorderWorker.js'
-    });
-    var html5Options = {
-      enableHighAccuracy: true,
-      timeout: 6000,
-      maximumAge: 0
-    };
-    geolocator.locate(onGeoSuccess, onGeoError, true, html5Options,
-      'map-canvas'); //stopRecording(param) is called in this function
-  }, function(err) {
-    console.log('Browser not supported');
-  });
+        var recordedBlob = recordRTC.getBlob();
+        recordRTC.getDataURL(function(dataURL) { });
+   });
+};
+  //   // create a stream source to pass to Recorder.js
+  //   var mediaStreamSource = context.createMediaStreamSource(
+  //     localMediaStream);
+
+  //   // create new instance of Recorder.js using the mediaStreamSource
+  //   rec = new Recorder(mediaStreamSource, {
+  //     // pass the path to recorderWorker.js file here
+  //     workerPath: '/bower_components/Recorderjs/recorderWorker.js'
+  //   });
+  //   var html5Options = {
+  //     enableHighAccuracy: true,
+  //     timeout: 6000,
+  //     maximumAge: 0
+  //   };
+  //   geolocator.locate(onGeoSuccess, onGeoError, true, html5Options,
+  //     'map-canvas'); //stopRecording(param) is called in this function
+  // }, function(err) {
+  //   console.log('Browser not supported');
+  // });
 
 
 
